@@ -50,7 +50,7 @@ Minor edits made to this program by Jim Dempsey of QuickThread Programming, LLC
 #include <assert.h>
 #include <immintrin.h>
 
-#define REAL double
+#define REAL float
 #if !defined(NX)
 #define NX 256
 #endif
@@ -102,12 +102,16 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
                    REAL cb, REAL cc, REAL dt,
                    int count) {
   int i;
+  
+  REAL *f1_t = f1;
+  REAL *f2_t = f2;
+  
   for (i = 0; i < count; ++i) {
     for (int z = 0; z < nz; z++) {
       for (int y = 0; y < ny; y++) {
         for (int x = 0; x < nx; x+=4) {
           int c, w, e, n, s, b, t;
-          __m256d _a, _b, _c, _f2_t;
+          __m256 _a, _b, _c, _f2_t;
 
           c =  x + y * NXP + z * NXP * ny;
           //w = (x == 0)    ? c : c - 1;
@@ -118,62 +122,62 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
           t = (z == nz-1) ? c : c + NXP * ny;
 
 
-          _f2_t = _mm256_setzero_pd(); //init f2_t
+          _f2_t = _mm256_setzero_ps(); //init f2_t
 
-          // Now compute cc * f1_t[c]
-          _a = _mm256_load_pd(f1 + c); //load 4 double from f1_t[c]
-          _b = _mm256_set1_pd(cc); // broadcast cc to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1_t[c] (since _f2_t == 0)
-
-
-          // Now compute cw * f1_t[w]
-          if (x == 0) {
-              _a = _mm256_load_pd(f1+c); // low->high [c,c+1,c+2,c+3]
-              _a = _mm256_permute4x64_pd(_a, _MM_SHUFFLE(2,1,0,0)); // n -> nth [c,c,c+1,c+2]
-          } else {
-              _a = _mm256_loadu_pd(f1+c-1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
-          }
-          _b = _mm256_set1_pd(cw); // broadcast cw to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // cw * f1_t[c]
+            // Now compute cc * f1_t[c]
+            _a = _mm256_load_ps(f1_t + c); //load 8 float from f1_t[c]
+            _b = _mm256_set1_ps(cc); // broadcast cc to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1_t[c] (since _f2_t == 0)
 
 
-          // Now compute ce * f1_t[e]
-          if (x >= NXP-4) {
-              _a = _mm256_load_pd(f1+c); // low->high [c,c+1,c+2,c+3]
-              _a = _mm256_permute4x64_pd(_a, _MM_SHUFFLE(3,3,2,1)); // n -> nth [c+1,c+2,c+3,c+3]
-          } else {
-              _a = _mm256_loadu_pd(f1+c+1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
-          }
-          _b = _mm256_set1_pd(ce); // broadcast ce to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // ce * f1_t[c+1]
+            // Now compute cw * f1_t[w]
+            if (x == 0) {
+                _a = _mm256_load_ps(f1_t+c); // low->high [c,c+1,c+2,c+3]
+                _a = _mm256_permutevar8x32_ps(_a, _mm256_set_epi32(6,5,4,3,2,1,0,0)); // n -> nth [c,c,c+1,c+2]
+            } else {
+                _a = _mm256_loadu_ps(f1_t+c-1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
+            }
+            _b = _mm256_set1_ps(cw); // broadcast cw to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // cw * f1_t[w]
 
 
-          // Now compute cs * f1_t[s]
-          _a = _mm256_load_pd(f1 + s); //load 4 double from f1_t
-          _b = _mm256_set1_pd(cs); // broadcast cs to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1_t[s]
+            // Now compute ce * f1_t[e]
+            if (x >= NXP-8) {
+                _a = _mm256_load_ps(f1_t+c); // low->high [c,c+1,c+2,c+3]
+                _a = _mm256_permutevar8x32_ps(_a, _mm256_set_epi32(7,7,6,5,4,3,2,1)); // n -> nth [c+1,c+2,c+3,c+3]
+            } else {
+                _a = _mm256_loadu_ps(f1_t+c+1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
+            }
+            _b = _mm256_set1_ps(ce); // broadcast ce to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // ce * f1_t[c+1]
 
 
-          // Now compute cn * f1_t[n]
-          _a = _mm256_load_pd(f1 + n); //load 4 double from f1_t
-          _b = _mm256_set1_pd(cn); // broadcast cn to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1_t[n]
+            // Now compute cs * f1_t[s]
+            _a = _mm256_load_ps(f1_t + s); //load 8 float from f1_t
+            _b = _mm256_set1_ps(cs); // broadcast cs to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1_t[s]
 
 
-          // Now compute cb * f1_t[b]
-          _a = _mm256_load_pd(f1 + b); //load 4 double from f1_t
-          _b = _mm256_set1_pd(cb); // broadcast cb to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1_t[b]
+            // Now compute cn * f1_t[n]
+            _a = _mm256_load_ps(f1_t + n); //load 8 float from f1_t
+            _b = _mm256_set1_ps(cn); // broadcast cn to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1_t[n]
 
 
-          // Now compute ct * f1_t[t]
-          _a = _mm256_load_pd(f1 + t); //load 4 double from f1_t
-          _b = _mm256_set1_pd(ct); // broadcast ct to 4 double
-          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1_t[t]
+            // Now compute cb * f1_t[b]
+            _a = _mm256_load_ps(f1_t + b); //load 8 float from f1_t
+            _b = _mm256_set1_ps(cb); // broadcast cb to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1_t[b]
 
 
-          // Now store result to f2_t[c]
-          _mm256_store_pd(f2 + c, _f2_t); //aligned store for f2_t[c]
+            // Now compute ct * f1_t[t]
+            _a = _mm256_load_ps(f1_t + t); //load 8 float from f1_t
+            _b = _mm256_set1_ps(ct); // broadcast ct to 8 float
+            _f2_t = _mm256_fmadd_ps(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1_t[t]
+
+
+            // Now store result to f2_t[c]
+            _mm256_store_ps(f2_t + c, _f2_t); //aligned store for f2_t[c]
         }
       }
     }
@@ -273,7 +277,7 @@ int main(int argc, char *argv[])
       / elapsed_time * 1.0e-09;
 
   fprintf(stderr, "Elapsed time : %.3f (s)\n", elapsed_time);
-  fprintf(stderr, "FLOPS        : %.3f (GFlops)\n", gflops);
+  fprintf(stderr, "SP FLOPS     : %.3f (GFlops)\n", gflops);
   fprintf(stderr, "Throughput   : %.3f (GB/s)\n", thput);
   fprintf(stderr, "Accuracy     : %e\n", err);
 

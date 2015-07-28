@@ -1,0 +1,110 @@
+Intel(R) Architecture Code Analyzer Version - 2.1
+Analyzed File - ompvect.cpu
+Binary Format - 64Bit
+Architecture  - HSW
+Analysis Type - Throughput
+
+*******************************************************************
+Intel(R) Architecture Code Analyzer Mark Number 1
+*******************************************************************
+
+Throughput Analysis Report
+--------------------------
+Block Throughput: 105.00 Cycles       Throughput Bottleneck: GatherTpt
+
+Port Binding In Cycles Per Iteration:
+---------------------------------------------------------------------------------------
+|  Port  |  0   -  DV  |  1   |  2   -  D   |  3   -  D   |  4   |  5   |  6   |  7   |
+---------------------------------------------------------------------------------------
+| Cycles | 15.1   0.0  | 14.4 | 39.0   38.5 | 39.0   38.5 | 1.0  | 17.3 | 17.2 | 0.0  |
+---------------------------------------------------------------------------------------
+
+N - port number or number of cycles resource conflict caused delay, DV - Divider pipe (on port 0)
+D - Data fetch pipe (on ports 2 and 3), CP - on a critical path
+F - Macro Fusion with the previous instruction occurred
+* - instruction micro-ops not bound to a port
+^ - Micro Fusion happened
+# - ESP Tracking sync uop was issued
+@ - SSE instruction followed an AVX256 instruction, dozens of cycles penalty is expected
+! - instruction not supported, was not accounted in Analysis
+
+| Num Of |                    Ports pressure in cycles                     |    |
+|  Uops  |  0  - DV  |  1  |  2  -  D  |  3  -  D  |  4  |  5  |  6  |  7  |    |
+---------------------------------------------------------------------------------
+|   1    |           | 0.2 |           |           |     | 0.8 |     |     |    | lea rdi, ptr [r12+rax*4]
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm3, ymm3, ymm3
+|   1    | 0.1       | 0.2 |           |           |     |     | 0.8 |     |    | test r15d, r15d
+|   1    |           | 0.1 |           |           |     | 0.9 |     |     |    | vpcmpeqd ymm0, ymm0, ymm0
+|   5    | 1.0       | 0.3 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.7 |     | CP | vgatherdps ymm3, dword ptr [rdi+ymm1*4], ymm0
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm2, ymm2, ymm2
+|   2^   | 0.2       | 0.8 | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vfmadd132ps ymm3, ymm2, ymmword ptr [rsp+0x60]
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | jnz 0xc
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm1, ymmword ptr [rip+0x50ae]
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | jmp 0xa
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm1, ymmword ptr [rip+0x5044]
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm2, ymm2, ymm2
+|   1    |           | 0.3 |           |           |     | 0.7 |     |     | CP | vpcmpeqd ymm0, ymm0, ymm0
+|   5    | 1.0       | 0.4 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.6 |     | CP | vgatherdps ymm2, dword ptr [rdi+ymm1*4], ymm0
+|   2^   | 0.1       | 0.9 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm2, ymm3, ymmword ptr [rsp+0x80]
+|   2^   | 0.4       |     | 0.5   0.5 | 0.5   0.5 |     |     | 0.6 |     |    | cmp r15d, dword ptr [rsp+0xf0]
+|   0F   |           |     |           |           |     |     |     |     |    | jl 0xc
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x505a]
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | jmp 0xa
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vmovdqu ymm0, ymmword ptr [rip+0x5030]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rsp+0xe8]
+|   0*   |           |     |           |           |     |     |     |     |    | mov r9d, ebx
+|   1    |           | 0.2 |           |           |     | 0.9 |     |     |    | vpcmpeqd ymm7, ymm7, ymm7
+|   1    | 0.1       | 0.2 |           |           |     | 0.1 | 0.6 |     |    | sub r9d, edx
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm3, ymm3, ymm3
+|   0*   |           |     |           |           |     |     |     |     |    | mov r11d, ebx
+|   0*   |           |     |           |           |     |     |     |     |    | vmovdqa ymm1, ymm7
+|   1    | 0.1       |     |           |           |     | 0.1 | 0.9 |     |    | add r15d, 0x8
+|   5    | 1.0       | 0.5 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.5 |     | CP | vgatherdps ymm3, dword ptr [rdi+ymm0*4], ymm1
+|   1    |           | 0.5 |           |           |     | 0.5 |     |     |    | lea edi, ptr [rdx+rbx*1]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm8, ymmword ptr [rip+0x4fbf]
+|   2^   | 0.4       | 0.6 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm3, ymm2, ymmword ptr [rsp+0xa0]
+|   2^   |           | 0.2 | 0.5   0.5 | 0.5   0.5 |     | 0.1 | 0.8 |     |    | cmp r14d, dword ptr [rsp+0x180]
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm4, ymm4, ymm4
+|   2    | 0.8       |     |           |           |     | 0.2 | 1.0 |     |    | cmovz edi, ebx
+|   1    | 0.1       | 0.3 |           |           |     | 0.1 | 0.6 |     |    | test r14d, r14d
+|   1    | 0.1       | 0.3 |           |           |     | 0.2 | 0.5 |     |    | movsxd rdi, edi
+|   2    | 0.9       | 0.1 |           |           |     | 0.3 | 0.7 |     |    | cmovz r9d, ebx
+|   0*   |           |     |           |           |     |     |     |     |    | vmovdqa ymm0, ymm7
+|   1    | 0.2       | 0.3 |           |           |     | 0.2 | 0.3 |     |    | movsxd r9, r9d
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm6, ymm6, ymm6
+|   1    |           | 0.5 |           |           |     | 0.5 |     |     |    | lea r8, ptr [r12+rdi*4]
+|   5    | 1.0       | 0.6 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.3 |     |    | vgatherdps ymm4, dword ptr [r8+ymm8*4], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edi, dword ptr [rsp+0x58]
+|   1    |           | 0.3 |           |           |     | 0.6 |     |     |    | lea r10, ptr [r12+r9*4]
+|   1    | 0.1       | 0.2 |           |           |     | 0.1 | 0.7 |     |    | sub r11d, edi
+|   1    | 0.1       | 0.2 |           |           |     | 0.2 | 0.6 |     |    | test r13d, r13d
+|   0*   |           |     |           |           |     |     |     |     |    | vmovdqa ymm2, ymm7
+|   2    | 0.7       |     |           |           |     | 0.4 | 0.9 |     |    | cmovz r11d, ebx
+|   1    |           | 0.2 |           |           |     | 0.3 | 0.4 |     |    | add edi, ebx
+|   1    | 0.2       | 0.2 |           |           |     | 0.4 | 0.2 |     |    | movsxd r11, r11d
+|   5    | 1.0       | 0.9 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.1 |     |    | vgatherdps ymm6, dword ptr [r10+ymm8*4], ymm2
+|   2^   | 0.1       | 0.9 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm4, ymm3, ymmword ptr [rsp+0x100]
+|   2^   |           | 0.1 | 0.5   0.5 | 0.5   0.5 |     | 0.1 | 0.9 |     |    | cmp r13d, dword ptr [rsp+0xf8]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | lea r11, ptr [r12+r11*4]
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm9, ymm9, ymm9
+|   2    | 0.9       | 0.1 |           |           |     |     | 1.1 |     |    | cmovz edi, ebx
+|   1    |           | 0.1 |           |           |     | 0.3 | 0.6 |     |    | add ebx, 0x8
+|   0*   |           |     |           |           |     |     |     |     |    | vmovdqa ymm5, ymm7
+|   1    |           | 0.1 |           |           |     | 0.6 | 0.2 |     |    | movsxd rdi, edi
+|   5    | 1.0       | 0.6 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.3 |     |    | vgatherdps ymm9, dword ptr [r11+ymm8*4], ymm5
+|   2^   | 0.2       | 0.8 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm6, ymm4, ymmword ptr [rsp+0x120]
+|   0*   |           |     |           |           |     |     |     |     |    | vxorps ymm10, ymm10, ymm10
+|   1    |           | 0.3 |           |           |     | 0.7 |     |     |    | lea rdi, ptr [r12+rdi*4]
+|   5    | 1.0       | 0.6 | 4.0   4.0 | 4.0   4.0 |     | 1.0 | 0.4 |     |    | vgatherdps ymm10, dword ptr [rdi+ymm8*4], ymm7
+|   2^   | 0.3       | 0.7 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm9, ymm6, ymmword ptr [rsp+0x140]
+|   2^   | 0.2       | 0.9 | 0.5   0.5 | 0.5   0.5 |     |     |     |     | CP | vfmadd132ps ymm10, ymm9, ymmword ptr [rsp+0x160]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdi, qword ptr [rsp+0x188]
+|   2    |           |     | 0.5       | 0.5       | 1.0 |     |     |     | CP | vmovups ymmword ptr [rdi+rax*4], ymm10
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | cmp r15d, edx
+|   0F   |           |     |           |           |     |     |     |     |    | jl 0xfffffffffffffe8e
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov ebx, dword ptr [rsp+0x50]
+|   0*   |           |     |           |           |     |     |     |     |    | xor r12d, r12d
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov r13d, dword ptr [rsp+0x58]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov r14d, dword ptr [rsp+0x48]
+|   0*   |           |     |           |           |     |     |     |     |    | mov r15d, edx
+Total Num Of Uops: 101

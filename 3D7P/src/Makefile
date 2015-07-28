@@ -16,7 +16,7 @@ OUT             =      /Fe
 endif
 #CFLAGSmic       =      -openmp $(OPT) -std=c99 -vec-report=6 -S -fsource-asm
 CFLAGSmic       =      -openmp $(OPT) -std=c99 -vec-report=3
-BIN_DIR         = ../bin/
+BIN_DIR         =      ../bin
 
 
 #BASEFLAGS=-opt-prefetch=0 -no-vec
@@ -26,19 +26,24 @@ AVXFLAGS=-xCORE-AVX2 -fma
 #AVXFLAGS=-xAVX
 
 
-all: base.load.cpu base.gather.cpu
+all: base.load.cpu base.gather.cpu base.load.SP.cpu
 
 base.load.cpu: base_load.cpu.c
 	touch base_load.cpu.c
-	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
-
+	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)/$@
+	
 base.gather.cpu: base_gather.cpu.c
 	touch base_gather.cpu.c
-	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
+	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)/$@
+
+
+base.load.SP.cpu: base_load_SP.cpu.c
+	touch base_load_SP.cpu.c
+	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)/$@
 
 
 clean:
-	rm -f ./*.knc
-	rm -f ./*.cpu
-	rm -f ./*.o
-	rm -f ./*.optrpt
+	rm -f $(BIN_DIR)/*.knc
+	rm -f $(BIN_DIR)/*.cpu
+	rm -f $(BIN_DIR)/*.o
+	rm -f $(BIN_DIR)/*.optrpt
