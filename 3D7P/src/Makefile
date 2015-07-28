@@ -16,6 +16,7 @@ OUT             =      /Fe
 endif
 #CFLAGSmic       =      -openmp $(OPT) -std=c99 -vec-report=6 -S -fsource-asm
 CFLAGSmic       =      -openmp $(OPT) -std=c99 -vec-report=3
+BIN_DIR         = ../bin/
 
 
 #BASEFLAGS=-opt-prefetch=0 -no-vec
@@ -25,13 +26,13 @@ AVXFLAGS=-xCORE-AVX2 -fma
 #AVXFLAGS=-xAVX
 
 
-all: base.load base.gather
+all: base.load.cpu base.gather.cpu
 
-base.load: base_load.c
-	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $@
+base.load.cpu: base_load.cpu.c
+	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
 
-base.gather: base_gather.c
-	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $@
+base.gather.cpu: base_gather.cpu.c
+	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
 
 
 clean:
