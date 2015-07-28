@@ -2,7 +2,7 @@ OPT = -O3 -fno-alias
 ifeq ($(windir),)
 CC              =       icc
 #CFLAGShost      =      -openmp $(OPT) -std=c99 -vec-report=6 -S -fsource-asm
-CFLAGShost      =      -openmp $(OPT) -std=c99 
+CFLAGShost      =      -openmp $(OPT) -std=c99 -opt-report=3
 MIC_OPT         =      -mmic
 #HOST            =      -xHost
 OUT             =      "-o"
@@ -29,11 +29,9 @@ AVXFLAGS=-xCORE-AVX2 -fma
 all: base.load.cpu base.gather.cpu
 
 base.load.cpu: base_load.cpu.c
-	touch base_load.cpu.c
 	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
 
 base.gather.cpu: base_gather.cpu.c
-	touch base_gather.cpu.c
 	$(CC) $(CFLAGShost) $(BASEFLAGS) $(AVXFLAGS) $^ -o $(BIN_DIR)$@
 
 
