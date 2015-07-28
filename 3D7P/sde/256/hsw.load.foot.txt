@@ -1,0 +1,17 @@
+# LEGEND : 
+#==========
+# ST = lines (or pages) with STORE only
+# LD = lines (or pages) with LOAD only
+# CD = lines (or pages) with CODE only
+# LD+ST = lines (or pages) with LOAD and SOTRE
+# CD+LD = lines (or pages) with CODE and LOAD
+# CD+ST = lines (or pages) with CODE and STORE
+# C+L+S = lines (or pages) with CODE, LOAD, and STORE
+# NEW = new accesses within interval
+#                          ============================================= CACHE LINES =============================================
+#  PERIOD[ms]          TID         LOAD        STORE        LD+ST         CODE        CD+LD        CD+ST        C+L+S          NEW 
+# THREAD_START 0
+          --            0         4247          905      6291938         1298            5            0            0      6298393
+          --          all         4247          905      6291938         1298            5            0            0      6298393
+
+# EOF
