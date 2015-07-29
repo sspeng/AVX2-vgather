@@ -49,6 +49,7 @@ Minor edits made to this program by Jim Dempsey of QuickThread Programming, LLC
 #include <omp.h>
 #include <assert.h>
 #include <immintrin.h>
+#include "iacaMarks.h"
 
 #define REAL double
 #if !defined(NX)
@@ -106,9 +107,11 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
     for (int z = 0; z < nz; z++) {
       for (int y = 0; y < ny; y++) {
         for (int x = 0; x < nx; x+=4) {
+ 
+ IACA_START
+ 
           int c, w, e, n, s, b, t;
-          __m512d _a, _b, _c, _f2_t;
-          __m512i _idx;
+          __m256d _a, _b, _c, _f2_t;
 
           c =  x + y * NXP + z * NXP * ny;
           //w = (x == 0)    ? c : c - 1;
@@ -119,65 +122,64 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
           t = (z == nz-1) ? c : c + NXP * ny;
 
 
-          _f2_t = _mm512_setzero_pd(); //init f2_t
-          
-          // Now compute cc * f1[c]
-          _idx = _mm512_set_epi64(7,6,5,4,3,2,1,0);
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
-          _b = _mm512_set1_pd(cc); // broadcast cc to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1[c] (since _f2_t == 0)
-          
-          
-          // Now compute cw * f1[w]
+          _f2_t = _mm256_setzero_pd(); //init f2_t
+
+          // Now compute cc * f1_t[c]
+          _a = _mm256_load_pd(f1 + c); //load 4 double from f1_t[c]
+          _b = _mm256_set1_pd(cc); // broadcast cc to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1_t[c] (since _f2_t == 0)
+
+
+          // Now compute cw * f1_t[w]
           if (x == 0) {
-              _idx = _mm512_set_epi64(6,5,4,3,2,1,0,0);
+              _a = _mm256_load_pd(f1+c); // low->high [c,c+1,c+2,c+3]
+              _a = _mm256_permute4x64_pd(_a, _MM_SHUFFLE(2,1,0,0)); // n -> nth [c,c,c+1,c+2]
           } else {
-              _idx = _mm512_set_epi64(6,5,4,3,2,1,0,-1);
+              _a = _mm256_loadu_pd(f1+c-1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
           }
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
-          _b = _mm512_set1_pd(cw); // broadcast cw to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // cw * f1[c]
-          
-          
-          // Now compute ce * f1[e]
+          _b = _mm256_set1_pd(cw); // broadcast cw to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // cw * f1_t[c]
+
+
+          // Now compute ce * f1_t[e]
           if (x >= NXP-4) {
-              _idx = _mm512_set_epi64(7,7,6,5,4,3,2,1);
+              _a = _mm256_load_pd(f1+c); // low->high [c,c+1,c+2,c+3]
+              _a = _mm256_permute4x64_pd(_a, _MM_SHUFFLE(3,3,2,1)); // n -> nth [c+1,c+2,c+3,c+3]
           } else {
-              _idx = _mm512_set_epi64(8,7,6,5,4,3,2,1);
+              _a = _mm256_loadu_pd(f1+c+1); //unaligned load as [c+1] is not 32-byte aligned, load low portion
           }
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
-          _b = _mm512_set1_pd(ce); // broadcast ce to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // ce * f1[c+1]
-          
-          
-          // Now compute cs * f1[s]
-          _idx = _mm512_set_epi64(7,6,5,4,3,2,1,0);
-          _a = _mm512_i64gather_pd(_idx, f1+s, 8);
-          _b = _mm512_set1_pd(cs); // broadcast cs to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1[s]
-          
-          
-          // Now compute cn * f1[n]
-          _a = _mm512_i64gather_pd(_idx, f1+n, 8);
-          _b = _mm512_set1_pd(cn); // broadcast cn to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1[n]
-          
-          
-          // Now compute cb * f1[b]
-          _a = _mm512_i64gather_pd(_idx, f1+b, 8);
-          _b = _mm512_set1_pd(cb); // broadcast cb to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1[b]
-          
-          
-          // Now compute ct * f1[t]
-          _a = _mm512_i64gather_pd(_idx, f1+t, 8);
-          _b = _mm512_set1_pd(ct); // broadcast ct to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1[t]
-          
-          
-          // Now store result to f2[c]
-          _mm512_store_pd(f2 + c, _f2_t); //aligned store for f2[c]
+          _b = _mm256_set1_pd(ce); // broadcast ce to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // ce * f1_t[c+1]
+
+
+          // Now compute cs * f1_t[s]
+          _a = _mm256_load_pd(f1 + s); //load 4 double from f1_t
+          _b = _mm256_set1_pd(cs); // broadcast cs to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1_t[s]
+
+
+          // Now compute cn * f1_t[n]
+          _a = _mm256_load_pd(f1 + n); //load 4 double from f1_t
+          _b = _mm256_set1_pd(cn); // broadcast cn to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1_t[n]
+
+
+          // Now compute cb * f1_t[b]
+          _a = _mm256_load_pd(f1 + b); //load 4 double from f1_t
+          _b = _mm256_set1_pd(cb); // broadcast cb to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1_t[b]
+
+
+          // Now compute ct * f1_t[t]
+          _a = _mm256_load_pd(f1 + t); //load 4 double from f1_t
+          _b = _mm256_set1_pd(ct); // broadcast ct to 4 double
+          _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1_t[t]
+
+
+          // Now store result to f2_t[c]
+          _mm256_store_pd(f2 + c, _f2_t); //aligned store for f2_t[c]
         }
+ IACA_END
       }
     }
     REAL *t = f1;
@@ -210,9 +212,9 @@ int main(int argc, char *argv[])
   int    ny    = nSize;
   int    nz    = nSize;
 
-  REAL *f1 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 64);
-  REAL *f2 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 64);
-  REAL *answer = (REAL *)_mm_malloc(sizeof(REAL) * NXP*ny*nz, 64);
+  REAL *f1 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 32);
+  REAL *f2 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 32);
+  REAL *answer = (REAL *)_mm_malloc(sizeof(REAL) * NXP*ny*nz, 32);
   assert(f1 != NULL);
   assert(f2 != NULL);
   assert(answer != NULL);
