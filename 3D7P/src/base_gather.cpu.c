@@ -120,14 +120,14 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
 
 
           _f2_t = _mm256_setzero_pd(); //init f2_t
-          
+
           // Now compute cc * f1[c]
           _idx = _mm256_set_epi64x(3,2,1,0);
           _a = _mm256_i64gather_pd(f1+c, _idx, 8);
           _b = _mm256_set1_pd(cc); // broadcast cc to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1[c] (since _f2_t == 0)
-          
-          
+
+
           // Now compute cw * f1[w]
           if (x == 0) {
               _idx = _mm256_set_epi64x(2,1,0,0);
@@ -137,8 +137,8 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
           _a = _mm256_i64gather_pd(f1+c, _idx, 8);
           _b = _mm256_set1_pd(cw); // broadcast cw to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // cw * f1[c]
-          
-          
+
+
           // Now compute ce * f1[e]
           if (x >= NXP-4) {
               _idx = _mm256_set_epi64x(3,3,2,1);
@@ -148,33 +148,33 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
           _a = _mm256_i64gather_pd(f1+c, _idx, 8);
           _b = _mm256_set1_pd(ce); // broadcast ce to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // ce * f1[c+1]
-          
-          
+
+
           // Now compute cs * f1[s]
           _idx = _mm256_set_epi64x(3,2,1,0);
           _a = _mm256_i64gather_pd(f1+s, _idx, 8);
           _b = _mm256_set1_pd(cs); // broadcast cs to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1[s]
-          
-          
+
+
           // Now compute cn * f1[n]
           _a = _mm256_i64gather_pd(f1+n, _idx, 8);
           _b = _mm256_set1_pd(cn); // broadcast cn to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1[n]
-          
-          
+
+
           // Now compute cb * f1[b]
           _a = _mm256_i64gather_pd(f1+b, _idx, 8);
           _b = _mm256_set1_pd(cb); // broadcast cb to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1[b]
-          
-          
+
+
           // Now compute ct * f1[t]
           _a = _mm256_i64gather_pd(f1+t, _idx, 8);
           _b = _mm256_set1_pd(ct); // broadcast ct to 4 double
           _f2_t = _mm256_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1[t]
-          
-          
+
+
           // Now store result to f2[c]
           _mm256_store_pd(f2 + c, _f2_t); //aligned store for f2[c]
         }
@@ -202,7 +202,7 @@ void dump_result(REAL *f, int nx, int ny, int nz, char *out_path) {
 
 int main(int argc, char *argv[])
 {
-  
+
   int nSize=NX;
   double time_begin, time_end;
 

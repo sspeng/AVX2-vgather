@@ -1,0 +1,324 @@
+Intel(R) Architecture Code Analyzer Version - 2.1
+Analyzed File - ../bin/base.gather.IACA.cpu
+Binary Format - 64Bit
+Architecture  - HSW
+Analysis Type - Throughput
+
+*******************************************************************
+Intel(R) Architecture Code Analyzer Mark Number 1
+*******************************************************************
+
+Throughput Analysis Report
+--------------------------
+Block Throughput: 125.00 Cycles       Throughput Bottleneck: GatherTpt
+
+Port Binding In Cycles Per Iteration:
+---------------------------------------------------------------------------------------
+|  Port  |  0   -  DV  |  1   |  2   -  D   |  3   -  D   |  4   |  5   |  6   |  7   |
+---------------------------------------------------------------------------------------
+| Cycles | 20.5   0.0  | 20.5 | 81.3   79.5 | 81.3   79.5 | 85.0 | 20.5 | 20.5 | 81.3 |
+---------------------------------------------------------------------------------------
+
+N - port number or number of cycles resource conflict caused delay, DV - Divider pipe (on port 0)
+D - Data fetch pipe (on ports 2 and 3), CP - on a critical path
+F - Macro Fusion with the previous instruction occurred
+* - instruction micro-ops not bound to a port
+^ - Micro Fusion happened
+# - ESP Tracking sync uop was issued
+@ - SSE instruction followed an AVX256 instruction, dozens of cycles penalty is expected
+! - instruction not supported, was not accounted in Analysis
+
+| Num Of |                    Ports pressure in cycles                     |    |
+|  Uops  |  0  - DV  |  1  |  2  -  D  |  3  -  D  |  4  |  5  |  6  |  7  |    |
+---------------------------------------------------------------------------------
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5c8]
+|   !    |           |     |           |           |     |     |     |     |    | imul eax, dword ptr [rbp-0x608]
+|   2^   |           |     | 0.5   0.5 | 0.5   0.5 |     |     | 1.0 |     |    | add eax, dword ptr [rbp-0x604]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rbp-0x5c8]
+|   !    |           |     |           |           |     |     |     |     |    | imul edx, dword ptr [rbp-0x60c]
+|   !    |           |     |           |           |     |     |     |     |    | imul edx, dword ptr [rbp-0x5c0]
+|   1    |           | 0.2 |           |           |     |     | 0.8 |     |    | add eax, edx
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x600], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x608]
+|   1    | 1.0       |     |           |           |     |     |     |     |    | test eax, eax
+|   0F   |           |     |           |           |     |     |     |     |    | jz 0x18
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5c8]
+|   1    |           | 0.3 |           |           |     |     | 0.7 |     |    | neg eax
+|   2^   |           | 0.5 | 0.5   0.5 | 0.5   0.5 |     | 0.2 | 0.3 |     |    | add eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5fc], eax
+|   1    | 1.0       |     |           |           |     |     |     |     |    | jmp 0xe
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5fc], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5fc]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5f8], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x608]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rbp-0x5c0]
+|   1    | 0.1       | 0.3 |           |           |     | 0.2 | 0.4 |     |    | dec edx
+|   1    | 1.0       |     |           |           |     |     |     |     |    | cmp eax, edx
+|   0F   |           |     |           |           |     |     |     |     |    | jz 0x16
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5c8]
+|   2^   |           | 0.3 | 0.5   0.5 | 0.5   0.5 |     | 0.2 | 0.5 |     |    | add eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5f4], eax
+|   1    | 1.0       |     |           |           |     |     |     |     |    | jmp 0xe
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5f4], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5f4]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5f0], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x60c]
+|   1    | 0.9       |     |           |           |     |     | 0.1 |     |    | test eax, eax
+|   0F   |           |     |           |           |     |     |     |     |    | jz 0x1f
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5c0]
+|   !    |           |     |           |           |     |     |     |     |    | imul eax, dword ptr [rbp-0x5c8]
+|   1    |           | 0.4 |           |           |     | 0.3 | 0.2 |     |    | neg eax
+|   2^   |           | 0.2 | 0.5   0.5 | 0.5   0.5 |     | 0.5 | 0.3 |     |    | add eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5ec], eax
+|   1    | 0.9       |     |           |           |     |     | 0.1 |     |    | jmp 0xe
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5ec], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5ec]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5e8], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x60c]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rbp-0x5b8]
+|   1    | 0.1       | 0.4 |           |           |     | 0.2 | 0.4 |     |    | dec edx
+|   1    | 0.9       |     |           |           |     |     | 0.2 |     |    | cmp eax, edx
+|   0F   |           |     |           |           |     |     |     |     |    | jz 0x1d
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5c0]
+|   !    |           |     |           |           |     |     |     |     |    | imul eax, dword ptr [rbp-0x5c8]
+|   2^   |           | 0.4 | 0.5   0.5 | 0.5   0.5 |     | 0.5 | 0.1 |     |    | add eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5e4], eax
+|   1    | 0.6       |     |           |           |     |     | 0.3 |     |    | jmp 0xe
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5e4], eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5e4]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | mov dword ptr [rbp-0x5e0], eax
+|   0*   |           |     |           |           |     |     |     |     |    | vxorpd ymm0, ymm0, ymm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4f0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x4f0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3e50]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovdqu ymmword ptr [rbp-0x4b0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x4b0]
+|   2^   |           |     | 0.2       | 0.1       | 1.0 |     |     | 0.8 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   1    |           | 0.4 |           |           |     | 0.4 | 0.2 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 0.6 |           |           |     | 0.4 |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.4 |           |           |     | 0.6 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.0       | 0.1 | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 0.9 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x470], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x470]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x580]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x560], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x560]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x430], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x430]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x3f0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x3f0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x3d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x3d0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x604]
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | test eax, eax
+|   0F   |           |     |           |           |     |     |     |     |    | jnz 0x24
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3d8e]
+|   2^   |           |     | 0.1       | 0.2       | 1.0 |     |     | 0.8 |    | vmovdqu ymmword ptr [rbp-0x3b0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x3b0]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    | 0.6       |     |           |           |     |     | 0.4 |     |    | jmp 0x22
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3d8c]
+|   2^   |           |     | 0.2       | 0.1       | 1.0 |     |     | 0.8 |    | vmovdqu ymmword ptr [rbp-0x390], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x390]
+|   2^   |           |     | 0.2       | 0.1       | 1.0 |     |     | 0.8 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   1    | 0.1       | 0.1 |           |           |     |     | 0.9 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 0.9 |           |           |     | 0.1 |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.6 |           |           |     | 0.4 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.0       |     | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 1.0 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x370], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x370]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x5a8]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x550], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x550]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x350], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x350]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.1       | 0.9 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x330], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x330]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x310], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x310]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x604]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rbp-0x5c8]
+|   1    | 0.1       |     |           |           |     |     | 0.9 |     |    | add edx, 0xfffffffc
+|   1    | 0.9       |     |           |           |     |     | 0.1 |     |    | cmp eax, edx
+|   0F   |           |     |           |           |     |     |     |     |    | jl 0x24
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3cc1]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovdqu ymmword ptr [rbp-0x2f0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x2f0]
+|   2^   |           |     | 0.1       | 0.1       | 1.0 |     |     | 0.9 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    | 0.7       |     |           |           |     |     | 0.3 |     |    | jmp 0x22
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3cbf]
+|   2^   |           |     | 0.1       | 0.1       | 1.0 |     |     | 0.9 |    | vmovdqu ymmword ptr [rbp-0x2d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x2d0]
+|   2^   |           |     | 0.1       | 0.2       | 1.0 |     |     | 0.7 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   1    |           | 0.5 |           |           |     |     | 0.5 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 0.9 |           |           |     | 0.1 |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.1 |           |           |     | 0.9 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.0       | 0.1 | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 0.9 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x2b0], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x2b0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x5b0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x540], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x540]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x290], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x290]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.1       | 0.9 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x270], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x270]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x250], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x250]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rip+0x3b67]
+|   2^   |           |     | 0.2       | 0.2       | 1.0 |     |     | 0.7 |    | vmovdqu ymmword ptr [rbp-0x230], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovdqu ymm0, ymmword ptr [rbp-0x230]
+|   2^   |           |     | 0.2       | 0.2       | 1.0 |     |     | 0.6 |    | vmovdqu ymmword ptr [rbp-0x490], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5f0]
+|   1    |           | 0.1 |           |           |     |     | 0.9 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.1       |     | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 0.9 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x210], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x210]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x598]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x530], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x530]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x1f0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x1f0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.2       | 0.9 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x1d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x1d0]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x1b0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x1b0]
+|   2^   |           |     |           | 0.1       | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5f8]
+|   1    | 0.1       |     |           |           |     |     | 0.9 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.2 |           |           |     | 0.8 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.0       |     | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 1.0 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x190], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x190]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x5a0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x520], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x520]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x170], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x170]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.1       | 0.9 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x150], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x150]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x130], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x130]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5e8]
+|   1    | 0.2       |     |           |           |     |     | 0.9 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.9 |           |           |     | 0.1 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.1       |     | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 0.9 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x110], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x110]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x588]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x510], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x510]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0xf0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0xf0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.2       | 0.8 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0xd0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0xd0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0xb0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0xb0]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x5e0]
+|   1    | 0.3       |     |           |           |     |     | 0.6 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d8]
+|   1    |           | 1.0 |           |           |     |     |     |     |    | lea rax, ptr [rdx+rax*8]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovups ymm0, ymmword ptr [rbp-0x490]
+|   1    |           | 0.4 |           |           |     | 0.6 |     |     |    | vpcmpeqd ymm2, ymm2, ymm2
+|   5    | 1.0       |     | 2.0   2.0 | 2.0   2.0 |     | 1.0 | 1.0 |     |    | vgatherqpd ymm1, qword ptr [rax+ymm0*8], ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x90], ymm1
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x90]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x450], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovsd xmm0, qword ptr [rbp-0x590]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd xmmword ptr [rbp-0x500], xmm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd xmm0, xmmword ptr [rbp-0x500]
+|   1    |           |     |           |           |     | 1.0 |     |     |    | vbroadcastsd ymm0, xmm0
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x70], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x70]
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x410], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x450]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm1, ymmword ptr [rbp-0x410]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm2, ymmword ptr [rbp-0x4d0]
+|   1    | 0.2       | 0.8 |           |           |     |     |     |     |    | vfmadd213pd ymm0, ymm1, ymm2
+|   2^   |           |     |           |           | 1.0 |     |     | 1.0 |    | vmovupd ymmword ptr [rbp-0x50], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x50]
+|   2^   |           |     |           | 0.1       | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x30], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x30]
+|   2^   |           |     | 0.1       |           | 1.0 |     |     | 0.9 |    | vmovupd ymmword ptr [rbp-0x4d0], ymm0
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x600]
+|   1    | 0.4       |     |           |           |     |     | 0.6 |     |    | movsxd rax, eax
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov rdx, qword ptr [rbp-0x5d0]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | vmovupd ymm0, ymmword ptr [rbp-0x4d0]
+|   2    |           |     | 0.3       | 0.6       | 1.0 |     |     |     |    | vmovupd ymmword ptr [rdx+rax*8], ymm0
+|   4^   | 0.1       |     | 0.5   0.5 | 0.5   0.5 | 1.0 |     | 0.9 | 1.0 | CP | add dword ptr [rbp-0x604], 0x4
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov eax, dword ptr [rbp-0x604]
+|   1    |           |     | 0.5   0.5 | 0.5   0.5 |     |     |     |     |    | mov edx, dword ptr [rbp-0x5c8]
+|   1    | 0.9       |     |           |           |     |     | 0.1 |     |    | cmp eax, edx
+|   0F   |           |     |           |           |     |     |     |     |    | jl 0xfffffffffffff8a8
+Total Num Of Uops: 397

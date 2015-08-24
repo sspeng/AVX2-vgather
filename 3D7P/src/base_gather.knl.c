@@ -35,10 +35,11 @@
 /*
 Minor edits made to this program by Jim Dempsey of QuickThread Programming, LLC
 
-	1) Change to use OpenMP timing function
-	2) Change to permit NX to be optionally passed in as a compiler line -DNX=nnnn
-	3) Add assert to assure array answer is allocated
-	4) Add free(answer) at end of program
+        1) Change to use OpenMP timing function
+        2) Change to permit NX to be optionally passed in as a compiler line
+-DNX=nnnn
+        3) Add assert to assure array answer is allocated
+        4) Add free(answer) at end of program
 */
 
 #include <stdio.h>
@@ -60,27 +61,23 @@ Minor edits made to this program by Jim Dempsey of QuickThread Programming, LLC
 #define M_PI (3.1415926535897932384626)
 #endif
 
-
-void init(REAL *buff, const int nx, const int ny, const int nz,
-          const REAL kx, const REAL ky, const REAL kz,
-          const REAL dx, const REAL dy, const REAL dz,
-          const REAL kappa, const REAL time) {
+void init(REAL *buff, const int nx, const int ny, const int nz, const REAL kx,
+          const REAL ky, const REAL kz, const REAL dx, const REAL dy,
+          const REAL dz, const REAL kappa, const REAL time) {
   REAL ax, ay, az;
   int jz, jy, jx;
-  ax = exp(-kappa*time*(kx*kx));
-  ay = exp(-kappa*time*(ky*ky));
-  az = exp(-kappa*time*(kz*kz));
+  ax = exp(-kappa * time * (kx * kx));
+  ay = exp(-kappa * time * (ky * ky));
+  az = exp(-kappa * time * (kz * kz));
   for (jz = 0; jz < nz; jz++) {
     for (jy = 0; jy < ny; jy++) {
       for (jx = 0; jx < nx; jx++) {
-        int j = jz*NXP*ny + jy*NXP + jx;
-        REAL x = dx*((REAL)(jx + 0.5));
-        REAL y = dy*((REAL)(jy + 0.5));
-        REAL z = dz*((REAL)(jz + 0.5));
-        REAL f0 = (REAL)0.125
-          *(1.0 - ax*cos(kx*x))
-          *(1.0 - ay*cos(ky*y))
-          *(1.0 - az*cos(kz*z));
+        int j = jz * NXP * ny + jy * NXP + jx;
+        REAL x = dx * ((REAL)(jx + 0.5));
+        REAL y = dy * ((REAL)(jy + 0.5));
+        REAL z = dz * ((REAL)(jz + 0.5));
+        REAL f0 = (REAL)0.125 * (1.0 - ax * cos(kx * x)) *
+                  (1.0 - ay * cos(ky * y)) * (1.0 - az * cos(kz * z));
         buff[j] = f0;
       }
     }
@@ -93,90 +90,86 @@ REAL accuracy(const REAL *b1, REAL *b2, const int len, const int count) {
   for (i = 0; i < len; i++) {
     err += (b1[i] - b2[i]) * (b1[i] - b2[i]);
   }
-  return (REAL)sqrt(err/len) / count;
+  return (REAL)sqrt(err / len) / count;
 }
 
-void
-diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
-                   REAL ce, REAL cw, REAL cn, REAL cs, REAL ct,
-                   REAL cb, REAL cc, REAL dt,
-                   int count) {
+void diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny,
+                        int nz, REAL ce, REAL cw, REAL cn, REAL cs, REAL ct,
+                        REAL cb, REAL cc, REAL dt, int count) {
   int i;
   for (i = 0; i < count; ++i) {
     for (int z = 0; z < nz; z++) {
       for (int y = 0; y < ny; y++) {
-        for (int x = 0; x < nx; x+=4) {
+        for (int x = 0; x < nx; x += 4) {
           int c, w, e, n, s, b, t;
           __m512d _a, _b, _c, _f2_t;
           __m512i _idx;
 
-          c =  x + y * NXP + z * NXP * ny;
-          //w = (x == 0)    ? c : c - 1;
-          //e = (x == NXP-1) ? c : c + 1;
-          n = (y == 0)    ? c : c - NXP;
-          s = (y == ny-1) ? c : c + NXP;
-          b = (z == 0)    ? c : c - NXP * ny;
-          t = (z == nz-1) ? c : c + NXP * ny;
+          c = x + y * NXP + z * NXP * ny;
+          // w = (x == 0)    ? c : c - 1;
+          // e = (x == NXP-1) ? c : c + 1;
+          n = (y == 0) ? c : c - NXP;
+          s = (y == ny - 1) ? c : c + NXP;
+          b = (z == 0) ? c : c - NXP * ny;
+          t = (z == nz - 1) ? c : c + NXP * ny;
 
+          _f2_t = _mm512_setzero_pd(); // init f2_t
 
-          _f2_t = _mm512_setzero_pd(); //init f2_t
-          
           // Now compute cc * f1[c]
-          _idx = _mm512_set_epi64(7,6,5,4,3,2,1,0);
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
+          _idx = _mm512_set_epi64(7, 6, 5, 4, 3, 2, 1, 0);
+          _a = _mm512_i64gather_pd(_idx, f1 + c, 8);
           _b = _mm512_set1_pd(cc); // broadcast cc to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cc * f1[c] (since _f2_t == 0)
-          
-          
+          _f2_t = _mm512_fmadd_pd(
+              _a, _b,
+              _f2_t); // (_a*_b)+_f2_t equals to cc * f1[c] (since _f2_t == 0)
+
           // Now compute cw * f1[w]
           if (x == 0) {
-              _idx = _mm512_set_epi64(6,5,4,3,2,1,0,0);
+            _idx = _mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, 0);
           } else {
-              _idx = _mm512_set_epi64(6,5,4,3,2,1,0,-1);
+            _idx = _mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, -1);
           }
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
-          _b = _mm512_set1_pd(cw); // broadcast cw to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // cw * f1[c]
-          
-          
+          _a = _mm512_i64gather_pd(_idx, f1 + c, 8);
+          _b = _mm512_set1_pd(cw);                // broadcast cw to 4 double
+          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t); // cw * f1[c]
+
           // Now compute ce * f1[e]
-          if (x >= NXP-4) {
-              _idx = _mm512_set_epi64(7,7,6,5,4,3,2,1);
+          if (x >= NXP - 4) {
+            _idx = _mm512_set_epi64(7, 7, 6, 5, 4, 3, 2, 1);
           } else {
-              _idx = _mm512_set_epi64(8,7,6,5,4,3,2,1);
+            _idx = _mm512_set_epi64(8, 7, 6, 5, 4, 3, 2, 1);
           }
-          _a = _mm512_i64gather_pd(_idx, f1+c, 8);
-          _b = _mm512_set1_pd(ce); // broadcast ce to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // ce * f1[c+1]
-          
-          
+          _a = _mm512_i64gather_pd(_idx, f1 + c, 8);
+          _b = _mm512_set1_pd(ce);                // broadcast ce to 4 double
+          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t); // ce * f1[c+1]
+
           // Now compute cs * f1[s]
-          _idx = _mm512_set_epi64(7,6,5,4,3,2,1,0);
-          _a = _mm512_i64gather_pd(_idx, f1+s, 8);
+          _idx = _mm512_set_epi64(7, 6, 5, 4, 3, 2, 1, 0);
+          _a = _mm512_i64gather_pd(_idx, f1 + s, 8);
           _b = _mm512_set1_pd(cs); // broadcast cs to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cs * f1[s]
-          
-          
+          _f2_t = _mm512_fmadd_pd(_a, _b,
+                                  _f2_t); // (_a*_b)+_f2_t equals to cs * f1[s]
+
           // Now compute cn * f1[n]
-          _a = _mm512_i64gather_pd(_idx, f1+n, 8);
+          _a = _mm512_i64gather_pd(_idx, f1 + n, 8);
           _b = _mm512_set1_pd(cn); // broadcast cn to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cn * f1[n]
-          
-          
+          _f2_t = _mm512_fmadd_pd(_a, _b,
+                                  _f2_t); // (_a*_b)+_f2_t equals to cn * f1[n]
+
           // Now compute cb * f1[b]
-          _a = _mm512_i64gather_pd(_idx, f1+b, 8);
+          _a = _mm512_i64gather_pd(_idx, f1 + b, 8);
           _b = _mm512_set1_pd(cb); // broadcast cb to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to cb * f1[b]
-          
-          
+          _f2_t = _mm512_fmadd_pd(_a, _b,
+                                  _f2_t); // (_a*_b)+_f2_t equals to cb * f1[b]
+
           // Now compute ct * f1[t]
-          _a = _mm512_i64gather_pd(_idx, f1+t, 8);
+          _a = _mm512_i64gather_pd(_idx, f1 + t, 8);
           _b = _mm512_set1_pd(ct); // broadcast ct to 4 double
-          _f2_t = _mm512_fmadd_pd(_a, _b, _f2_t);  // (_a*_b)+_f2_t equals to ct * f1[t]
-          
-          
+          _f2_t = _mm512_fmadd_pd(_a, _b,
+                                  _f2_t); // (_a*_b)+_f2_t equals to ct * f1[t]
+
           // Now store result to f2[c]
-          _mm512_store_pd(f2 + c, _f2_t); //aligned store for f2[c]
+          _mm512_store_pd(f2 + c, _f2_t); // aligned store for f2[c]
         }
       }
     }
@@ -187,10 +180,7 @@ diffusion_baseline(REAL *restrict f1, REAL *restrict f2, int nx, int ny, int nz,
   return;
 }
 
-static double cur_second(void) {
-	return omp_get_wtime();
-}
-
+static double cur_second(void) { return omp_get_wtime(); }
 
 void dump_result(REAL *f, int nx, int ny, int nz, char *out_path) {
   FILE *out = fopen(out_path, "w");
@@ -200,26 +190,25 @@ void dump_result(REAL *f, int nx, int ny, int nz, char *out_path) {
   fclose(out);
 }
 
-int main(int argc, char *argv[])
-{
-  
-  int nSize=NX;
+int main(int argc, char *argv[]) {
+
+  int nSize = NX;
   double time_begin, time_end;
 
-  int    nx    = nSize;
-  int    ny    = nSize;
-  int    nz    = nSize;
+  int nx = nSize;
+  int ny = nSize;
+  int nz = nSize;
 
-  REAL *f1 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 64);
-  REAL *f2 = (REAL *)_mm_malloc(sizeof(REAL)*nSize*nSize*nSize, 64);
-  REAL *answer = (REAL *)_mm_malloc(sizeof(REAL) * NXP*ny*nz, 64);
+  REAL *f1 = (REAL *)_mm_malloc(sizeof(REAL) * nSize * nSize * nSize, 64);
+  REAL *f2 = (REAL *)_mm_malloc(sizeof(REAL) * nSize * nSize * nSize, 64);
+  REAL *answer = (REAL *)_mm_malloc(sizeof(REAL) * NXP * ny * nz, 64);
   assert(f1 != NULL);
   assert(f2 != NULL);
   assert(answer != NULL);
   REAL *f_final = NULL;
 
-  REAL   time  = 0.0;
-  int    count = 0;
+  REAL time = 0.0;
+  int count = 0;
 
   REAL l, dx, dy, dz, kx, ky, kz, kappa, dt;
   REAL ce, cw, cn, cs, ct, cb, cc;
@@ -228,7 +217,7 @@ int main(int argc, char *argv[])
   kappa = 0.1;
   dx = dy = dz = l / nx;
   kx = ky = kz = 2.0 * M_PI;
-  dt = 0.1*dx*dx / kappa;
+  dt = 0.1 * dx * dx / kappa;
 
   count = 6553;
 //  // original count computed with NX==256 and used
@@ -244,36 +233,36 @@ int main(int argc, char *argv[])
   // reduce by factor of 20 to get reasonable serial runtime
   count /= 100;
 #endif
-  f_final = (count % 2)? f2 : f1;
+  f_final = (count % 2) ? f2 : f1;
 
   // To avoid chaching effects for small message sizes //
-  int fact = 1, nn = nx*ny*nz;
-  for(;fact*nn*sizeof(REAL)<100e6;++fact);
-
+  int fact = 1, nn = nx * ny * nz;
+  for (; fact * nn * sizeof(REAL) < 100e6; ++fact)
+    ;
 
   init(f1, nx, ny, nz, kx, ky, kz, dx, dy, dz, kappa, time);
 
-  ce = cw = kappa*dt/(dx*dx);
-  cn = cs = kappa*dt/(dy*dy);
-  ct = cb = kappa*dt/(dz*dz);
+  ce = cw = kappa * dt / (dx * dx);
+  cn = cs = kappa * dt / (dy * dy);
+  ct = cb = kappa * dt / (dz * dz);
   cc = 1.0 - (ce + cw + cn + cs + ct + cb);
 
-  printf("Running diffusion kernel %d times, NX is %d\n", count, nSize); fflush(stdout);
-//  printf("Running diffusion kernel %d times\n", count); fflush(stdout);
+  printf("Running diffusion kernel %d times, NX is %d\n", count, nSize);
+  fflush(stdout);
+  //  printf("Running diffusion kernel %d times\n", count); fflush(stdout);
   time_begin = cur_second();
-  diffusion_baseline(f1, f2, nx, ny, nz, ce, cw, cn, cs, ct, cb, cc,
-                 dt, count);
+  diffusion_baseline(f1, f2, nx, ny, nz, ce, cw, cn, cs, ct, cb, cc, dt, count);
   time_end = cur_second();
   time = count * dt;
-//  dump_result(f_final, nx, ny, nz, "diffusion_result.dat");
+  //  dump_result(f_final, nx, ny, nz, "diffusion_result.dat");
 
   init(answer, nx, ny, nz, kx, ky, kz, dx, dy, dz, kappa, time);
-// compute error per iteration
-  REAL err = accuracy(f_final, answer, nx*ny*nz, count);
+  // compute error per iteration
+  REAL err = accuracy(f_final, answer, nx * ny * nz, count);
   double elapsed_time = time_end - time_begin;
-  REAL gflops = (nx*ny*nz)*13.0*count/elapsed_time * 1.0e-09;
-  double thput = (nx * ny * nz) * sizeof(REAL) * 3.0 * count
-      / elapsed_time * 1.0e-09;
+  REAL gflops = (nx * ny * nz) * 13.0 * count / elapsed_time * 1.0e-09;
+  double thput =
+      (nx * ny * nz) * sizeof(REAL) * 3.0 * count / elapsed_time * 1.0e-09;
 
   fprintf(stderr, "Elapsed time : %.3f (s)\n", elapsed_time);
   fprintf(stderr, "FLOPS        : %.3f (GFlops)\n", gflops);

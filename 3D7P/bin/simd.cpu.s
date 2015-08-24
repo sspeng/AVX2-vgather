@@ -2981,7 +2981,7 @@ diffusion_baseline:
         movl      1008(%rsp), %r9d                              #
                                 # LOE rax rcx rsi r8 r9 r10 r11 r12 eax edx ecx edi r8d r9d al cl ah ch r8b r9b xmm5 xmm6 xmm7 xmm8 xmm9 xmm10 xmm11
 ..B3.107:                       # Preds ..B3.106 ..B3.104 ..B3.350 ..B3.102 ..B3.79
-                                #      
+                                #
         movq      %rax, 1000(%rsp)                              #101.31
         xorl      %ebx, %ebx                                    #110.11
         movl      %edi, 880(%rsp)                               #101.31
@@ -3287,7 +3287,7 @@ diffusion_baseline:
         jae       ..B3.356      # Prob 18%                      #105.7
                                 # LOE rdx r12 edx ebx r12d dl dh r12b xmm5 xmm6 xmm7 xmm8 xmm9 xmm10 xmm11
 ..B3.129:                       # Preds ..B3.384 ..B3.376 ..B3.366 ..B3.359 ..B3.128
-                                #      
+                                #
         movl      %ebx, %r10d                                   #107.9
         imull     %edx, %r10d                                   #107.9
         lea       (%rdx,%r10), %r14d                            #107.9
@@ -5626,7 +5626,7 @@ diffusion_baseline:
         movl      %eax, 1048(%rsp)                              #101.31
                                 # LOE rbx edx ecx xmm4 xmm5 xmm6 xmm7 xmm8 xmm9 xmm10 xmm11
 ..B3.278:                       # Preds ..B3.311 ..B3.414 ..B3.312 ..B3.313 ..B3.277
-                                #      
+                                #
         movl      2160(%rsp), %edi                              #109.34
         movl      %ecx, %r10d                                   #107.9
         movl      %edi, %r11d                                   #109.34
